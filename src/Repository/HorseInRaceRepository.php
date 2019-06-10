@@ -15,34 +15,34 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class HorseInRaceRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
-        parent::__construct($registry, HorseInRace::class);
-    }
+      public function __construct(RegistryInterface $registry)
+      {
+          parent::__construct($registry, HorseInRace::class);
+      }
 
-    /**
-     * @return HorseInRace[] Returns an array of Horse objects
-     */
-    public function getHorsesInfoByRace(Race $race)
-    {
-      return $this->createQueryBuilder('h')
-        ->andWhere('h.race_id = :val')
-        ->setParameter('val', $race->getId())
-        ->orderBy('h.position', 'ASC')
-        ->setMaxResults(3)
-        ->getQuery()
-        ->getResult();
-    }
+      /**
+       * @return HorseInRace[] Returns an array of Horse objects
+       */
+      public function getHorsesInfoByRace(Race $race)
+      {
+        return $this->createQueryBuilder('h')
+          ->andWhere('h.race_id = :val')
+          ->setParameter('val', $race->getId())
+          ->orderBy('h.position', 'ASC')
+          ->setMaxResults(3)
+          ->getQuery()
+          ->getResult();
+      }
 
-    /**
-     * @return HorseInRace[] Returns an array of Horse objects
-     */
-    public function findBestTimeWithHorseStats()
-    {
-      return $this->createQueryBuilder('h')
-        ->addSelect('Min(completedTime)')
-        ->setMaxResults(1)
-        ->getQuery()
-        ->getResult();
-    }
+      /**
+       * @return HorseInRace[] Returns an array of Horse objects
+       */
+      public function findBestTimeWithHorseStats()
+      {
+        return $this->createQueryBuilder('h')
+          ->addSelect('Min(completedTime)')
+          ->setMaxResults(1)
+          ->getQuery()
+          ->getResult();
+      }
 }
