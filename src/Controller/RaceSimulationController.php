@@ -79,7 +79,6 @@ class RaceSimulationController extends AbstractController
         $raceId = $request->query->get('id', '');
 
         $horsesInRace = $raceSimulationService->updateHorseInfoPerRaceByTime($raceId, self::NUMBER_OF_SECONDS);
-        //$horsesInRace = $horse->getHorsesInfoByRace($race);
       }
 
       $jsonObject = $serializer->serialize($horsesInRace, 'json', [

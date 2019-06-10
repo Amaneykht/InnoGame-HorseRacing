@@ -41,6 +41,8 @@ class HorseInRaceRepository extends ServiceEntityRepository
     {
       return $this->createQueryBuilder('h')
         ->orderBy('h.completedTime', 'ASC')
+        ->setParameter('val', Race::COMPLETED_STATUS)
+        ->andWhere('h.status = :val')
         ->setMaxResults(1)
         ->getQuery()
         ->getResult();

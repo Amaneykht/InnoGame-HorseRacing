@@ -160,8 +160,6 @@ class RaceSimulationService
         $this->entityManager->persist($horses[$i - 1]);
       }
 
-
-
       $this->entityManager->flush();
 
       //Sort By Distance
@@ -197,7 +195,5 @@ class RaceSimulationService
       return ($horse->getDistanceCovered() >= $enduranceDistance)
         ? $horse->getDistanceCovered() + $speed * $numberOfSeconds - $slowEffect
         : $horse->getDistanceCovered() + $speed * $numberOfSeconds;
-
-
     }
 }
