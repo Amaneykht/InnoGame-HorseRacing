@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Repository;
 
@@ -14,35 +14,35 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class RaceRepository extends ServiceEntityRepository
 {
-      public function __construct(RegistryInterface $registry)
-      {
-          parent::__construct($registry, Race::class);
-      }
+    public function __construct(RegistryInterface $registry)
+    {
+        parent::__construct($registry, Race::class);
+    }
 
-      /**
-      * @return Race[] Returns an array of Race objects
-      */
-      public function findInProgressRaces()
-      {
-        return $this->createQueryBuilder('r')
-          ->andWhere('r.status = :val')
-          ->setParameter('val', Race::IN_PROGRESS_STATUS)
-          ->orderBy('r.id', 'ASC')
-          ->getQuery()
-          ->getResult();
-      }
+    /**
+    * @return Race[] Returns an array of Race objects
+    */
+    public function findInProgressRaces()
+    {
+      return $this->createQueryBuilder('r')
+        ->andWhere('r.status = :val')
+        ->setParameter('val', Race::IN_PROGRESS_STATUS)
+        ->orderBy('r.id', 'ASC')
+        ->getQuery()
+        ->getResult();
+    }
 
-      /**
-       * @return Race[] Returns an array of Race objects
-       */
-      public function findLastFiveRaces()
-      {
-        return $this->createQueryBuilder('r')
-          ->andWhere('r.status = :val')
-          ->setParameter('val', Race::COMPLETED_STATUS)
-          ->orderBy('r.createdDateTime', 'DESC')
-          ->setMaxResults(5)
-          ->getQuery()
-          ->getResult();
-      }
+    /**
+     * @return Race[] Returns an array of Race objects
+     */
+    public function findLastFiveRaces()
+    {
+      return $this->createQueryBuilder('r')
+        ->andWhere('r.status = :val')
+        ->setParameter('val', Race::COMPLETED_STATUS)
+        ->orderBy('r.createdDateTime', 'DESC')
+        ->setMaxResults(5)
+        ->getQuery()
+        ->getResult();
+    }
 }

@@ -20,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Controller used to manage current races and get information about existing races
@@ -29,70 +30,64 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class RaceSimulationController extends AbstractController
 {
-      const NUMBER_OF_SECONDS = 10;
+    const NUMBER_OF_SECONDS = 10;
+    /**
+     * @Route("/", methods={"GET"}, name="race_simulation_index")
+     *
+     */
+    public function index(Request $request, RaceRepository $races, HorseInRaceRepository $horse): Response
+    {
+        $currentRaces = $races->findInProgressRaces();
+        $lastfiveRaces = $races->findLastFiveRaces();
+        $bestTimeAndHorseStats = $horse->findBestTimeWithHorseStats();
 
-      /**
-       * @Route("/", methods={"GET"}, name="race_simulation_index")
-       *
-       */
-      public function index(Request $request, RaceRepository $races): Response
-      {
-          $currentRaces = $races->findInProgressRaces();
-
-          return $this->render('race-simulation/index.html.twig', [
-              'currentRaces' => $currentRaces,
-          ]);
-      }
+        return $this->render('race-simulation/index.html.twig', [
+            'currentRaces' => $currentRaces,
+            'lastfiveRaces' => $lastfiveRaces,
+            'bestTimeAndHorseStats' => $bestTimeAndHorseStats[0]
+        ]);
+    }
 
     /**
-     * @Route("/completed", methods={"GET"}, name="race_simulation_completed")
-     * @param RaceRepository $races
-     *
-     * @return Response
-     *
-     * @throws \Doctrine\ORM\ORMException
+     * @Route("/add", methods={"GET"}, name="race_simulation_add")
      */
-      public function completedRacesInfo(RaceRepository $races, HorseInRaceRepository $horse): Response
-      {
-          $last5Races = $races->findLastFiveRaces();
-          $bestTimeAndHorseStats = $horse->findBestTimeWithHorseStats();
+    public function raceAdd(Request $request, HorseInRaceRepository $horse, RaceSimulationService $raceSimulationService): Response
+    {
+        $horsesInRace = [];
 
-          return $this->render('race-simulation/races-info.html.twig', [
-            'last5Races' => $last5Races,
-            'bestTimeAndHorseStats' => $bestTimeAndHorseStats
-          ]);
-      }
+        if ($request->isXmlHttpRequest()) {
+          $horsesInRace = ['1'];
+          $race = $raceSimulationService->addNewRaceAndGenerateHorses();
 
-      /**
-       * @Route("/add", methods={"GET"}, name="race_simulation_add")
-       */
-      public function raceAdd(Request $request, HorseInRaceRepository $horse, RaceSimulationService $raceSimulationService): Response
-      {
-          $horsesInRace = [];
-
-          if (!$request->isXmlHttpRequest()) {
-            $race = $raceSimulationService->addNewRaceAndGenerateHorses();
+          if ($race !== false)
+          {
             $horsesInRace = $horse->getHorsesInfoByRace($race);
           }
+        }
 
-          return $this->json($horsesInRace);
-      }
+        return $this->json($horsesInRace);
+    }
 
     /**
      * @Route("/progress", methods={"GET"}, name="race_simulation_progress")
      */
-    public function raceProgress(Request $request, HorseInRaceRepository $horse, RaceSimulationService $raceSimulationService): Response
+    public function raceProgress(Request $request, HorseInRaceRepository $horse, RaceSimulationService $raceSimulationService, SerializerInterface $serializer): Response
     {
       $horsesInRace = [];
 
-      if (!$request->isXmlHttpRequest()) {
+      if ($request->isXmlHttpRequest()) {
         $raceId = $request->query->get('id', '');
-        $numberOfSeconds = self::NUMBER_OF_SECONDS;
 
-        $race = $raceSimulationService->updateHorseInfoPerRaceByTime($raceId, $numberOfSeconds);
-        $horsesInRace = $horse->getHorsesInfoByRace($race);
+        $horsesInRace = $raceSimulationService->updateHorseInfoPerRaceByTime($raceId, self::NUMBER_OF_SECONDS);
+        //$horsesInRace = $horse->getHorsesInfoByRace($race);
       }
 
-      return $this->json($horsesInRace);
+      $jsonObject = $serializer->serialize($horsesInRace, 'json', [
+        'circular_reference_handler' => function ($object) {
+          return $object->getId();
+        }
+      ]);
+
+      return new Response($jsonObject, 200, ['Content-Type' => 'application/json']);
     }
 }

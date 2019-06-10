@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Repository;
 
@@ -15,8 +15,12 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class HorseRepository extends ServiceEntityRepository
 {
-      public function __construct(RegistryInterface $registry)
-      {
-          parent::__construct($registry, Horse::class);
-      }
+    public function __construct(RegistryInterface $registry)
+    {
+        parent::__construct($registry, Horse::class);
+    }
+
+    public function findAvailableHorses() {
+      return $this->findAll();
+    }
 }
