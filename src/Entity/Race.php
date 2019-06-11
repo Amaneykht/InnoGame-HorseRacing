@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Entity;
 
+use App\Repository\HorseInRaceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -62,6 +63,13 @@ class Race
         return $this->id;
     }
 
+    public function setId(?int $id): self
+    {
+      $this->id = $id;
+
+      return $this;
+    }
+
     public function getCreatedDateTime(): ?\DateTimeInterface
     {
         return $this->createdDateTime;
@@ -113,31 +121,15 @@ class Race
     /**
      * @return Collection|HorseInRace[]
      */
-    public function getHorses(): Collection
+    public function getHorses()
     {
         return $this->horses;
     }
 
-    public function addHorse(HorseInRace $horse): self
+    public function setHorses(array $horses): self
     {
-        if (!$this->horses->contains($horse)) {
-            $this->horses[] = $horse;
-            $horse->setRace($this);
-        }
+      $this->horses = $horses;
 
-        return $this;
-    }
-
-    public function removeHorse(HorseInRace $horse): self
-    {
-        if ($this->horses->contains($horse)) {
-            $this->horses->removeElement($horse);
-            // set the owning side to null (unless already changed)
-            if ($horse->getRace() === $this) {
-                $horse->setRace(null);
-            }
-        }
-
-        return $this;
+      return $this;
     }
 }

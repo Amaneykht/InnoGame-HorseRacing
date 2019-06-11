@@ -1,58 +1,165 @@
 {% extends 'base.html.twig' %}
 
-{% block body_id 'blog_index' %}
+{% block body_id 'index' %}
 
-{% block main %}
-    {% for post in paginator.results %}
-        <article class="post">
-            <h2>
-                <a href="{{ path('blog_post', {slug: post.slug}) }}">
-                    {{ post.title }}
-                </a>
-            </h2>
+{% block body %}
+    <div class="form-group">
+        <button class="btn btn-primary new-race" >
+            New Race
+        </button>
+        <button class="btn btn-primary progress-race" >
+            progress
+        </button>
+    </div>
+    {% for race in currentRaces %}
+        <div class="race col-xs-6">
+            <div class="col-xs-12">
+                <h2>
+                    Race {{ race.getId() }}
+                </h2>
 
-            <p class="post-metadata">
-                <span class="metadata"><i class="fa fa-calendar"></i> {{ post.publishedAt|localizeddate('long', 'medium', null, 'UTC') }}</span>
-                <span class="metadata"><i class="fa fa-user"></i> {{ post.author.fullName }}</span>
-            </p>
 
-            <p>{{ post.summary }}</p>
+            </div>
 
-            {{ include('blog/_post_tags.html.twig') }}
-        </article>
-    {% else %}
-        <div class="well">{{ 'post.no_posts_found'|trans }}</div>
+            <div class="col-xs-12">
+                <table>
+                    <tr>
+                        <th>
+                            Horse Number
+                        </th>
+                        <th>
+                            Position
+                        </th>
+                        <th>
+                            Distance
+                        </th>
+                        <th>
+                            Time
+                        </th>
+                    </tr>
+
+                {% for horse in race.getHorses() %}
+                    <tr>
+                        <td>
+                            {{ horse.getHorse().getId() }}
+                        </td>
+                        <td>
+                            {{ horse.getPosition() }}
+                        </td>
+                        <td>
+                            {{ horse.getDistanceCovered() }}
+                        </td>
+                        <td>
+                            {{ horse.getCompletedTime() }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </div>
+
+        </div>
     {% endfor %}
 
-    {% if paginator.haveToPaginate %}
-        <div class="navigation text-center">
-            <ul class="pagination">
-                {% if paginator.hasPreviousPage %}
-                    <li class="prev"><a href="{{ path('blog_index_paginated', {page: paginator.previousPage}) }}" rel="previous"><i class="fa fw fa-long-arrow-left"></i> Previous</a></li>
-                {% else %}
-                    <li class="prev disabled"><span><i class="fa fw fa-arrow-left"></i> Previous</span></li>
-                {% endif %}
+    <h3>Last five Races</h3>
+    {% for race in lastfiveRaces %}
+        <div class="race col-xs-6">
 
-                {% for i in 1..paginator.numPages %}
-                    {% if i == paginator.currentPage %}
-                        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
-                    {% else %}
-                        <li><a href="{{ path('blog_index_paginated', {page: i}) }}">{{ i }}</a></li>
-                    {% endif %}
-                {% endfor %}
+            <div class="col-xs-12">
+                <table>
+                    <tr>
+                        <th colspan="4"> Race {{ race.getId() }}</th>
+                    </tr>
+                    <tr>
+                        <th>
+                            Horse Number
+                        </th>
+                        <th>
+                            Position
+                        </th>
+                        <th>
+                            Distance
+                        </th>
+                        <th>
+                            Time
+                        </th>
+                    </tr>
 
-                {% if paginator.hasNextPage %}
-                    <li class="prev"><a href="{{ path('blog_index_paginated', {page: paginator.nextPage}) }}" rel="next">Next <i class="fa fw fa-arrow-right"></i></a></li>
-                {% else %}
-                    <li class="next disabled"><span>Next <i class="fa fw fa-arrow-right"></i></span></li>
-                {% endif %}
-            </ul>
+                    {% for horse in race.getHorses() %}
+                        <tr>
+                            <td>
+                                {{ horse.getHorse().getId() }}
+                            </td>
+                            <td>
+                                {{ horse.getPosition() }}
+                            </td>
+                            <td>
+                                {{ horse.getDistanceCovered() }}
+                            </td>
+                            <td>
+                                {{ horse.getCompletedTime() }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
         </div>
-    {% endif %}
+    {% endfor %}
+
+    <h3>Best Time:</h3>
+    Race: {{ bestTimeAndHorseStats.getRace().getId() }}
+    for the horse with Stats:
+        Speed: {{ bestTimeAndHorseStats.getHorse().getSpeed() }}
+        Strength: {{ bestTimeAndHorseStats.getHorse().getStrength()  }}
+        Endurance: {{ bestTimeAndHorseStats.getHorse().getEndurance() }}
+    completed in {{ bestTimeAndHorseStats.getCompletedTime() }}
+
 {% endblock %}
 
-{% block sidebar %}
-    {{ parent() }}
+{% block javascripts %}
+    <script language = "javascript"
+            src = "https://code.jquery.com/jquery-2.2.4.min.js"></script>
 
-    {{ show_source_code(_self) }}
+    <script language = "javascript">
+      $( document ).ready(function() {
+        setTimeout(function () {
+          window.location.reload();
+        }, 10000);
+
+        $(document).on('click', '.new-race', function (e) {
+          $.ajax({
+            type: 'GET',
+            url: '/race-simulation/add',
+            dataType: 'JSON',
+            data: {},
+            success: function(data) {
+              if (data['errorMessage'] !== "") {
+                alert(data['errorMessage']);
+              }
+              else {
+                window.location.reload();
+              }
+            },
+            error: function(data) {
+              console.log(data);
+            }
+          });
+        });
+
+        $(document).on('click', '.progress-race', function (e) {
+          $.ajax({
+            type: 'GET',
+            url: '/race-simulation/progress',
+            dataType: 'JSON',
+            data: {},
+            success: function(data) {
+              window.location.reload();
+            },
+            error: function(data) {
+              console.log(data);
+            }
+          });
+        });
+      });
+    </script>
 {% endblock %}

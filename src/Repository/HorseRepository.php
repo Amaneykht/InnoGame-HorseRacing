@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Repository;
 
@@ -18,5 +18,10 @@ class HorseRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Horse::class);
+    }
+
+    public function findAvailableHorses() {
+      // Todo: change to be horses that are not in another race now, and they weren't in a race in the last two days
+      return $this->findAll();
     }
 }

@@ -1,10 +1,11 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Repository;
 
 use App\Entity\HorseInRace;
 use App\Entity\Race;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -26,7 +27,7 @@ class HorseInRaceRepository extends ServiceEntityRepository
     public function getHorsesInfoByRace(Race $race)
     {
       return $this->createQueryBuilder('h')
-        ->andWhere('h.race_id = :val')
+        ->andWhere('h.raceId = :val')
         ->setParameter('val', $race->getId())
         ->orderBy('h.position', 'ASC')
         ->setMaxResults(3)
@@ -40,9 +41,18 @@ class HorseInRaceRepository extends ServiceEntityRepository
     public function findBestTimeWithHorseStats()
     {
       return $this->createQueryBuilder('h')
-        ->addSelect('Min(completedTime)')
+        ->orderBy('h.completedTime', 'ASC')
+        ->innerJoin('h.race', 'r')
+        ->andWhere('r.status = :val')
+        ->setParameter('val', Race::COMPLETED_STATUS)
         ->setMaxResults(1)
         ->getQuery()
         ->getResult();
+    }
+
+    public function createTopThreeCriteria(): Criteria {
+      return Criteria::create()
+        ->orderBy(['position' => 'ASC'])
+        ->setMaxResults(3);
     }
 }

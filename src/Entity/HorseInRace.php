@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 namespace App\Entity;
 
@@ -23,10 +23,19 @@ class HorseInRace
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
+    private $raceId;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $horseId;
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
     private $position;
 
     /**
-     * @ORM\Column(type="time", nullable=true)
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $completedTime;
 
@@ -47,10 +56,24 @@ class HorseInRace
      */
     private $horse;
 
+    public function __construct()
+    {
+      $this->position = 0;
+      $this->distanceCovered = 0.0;
+      $this->completedTime = 0;
+    }
+
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(?int $id): self
+    {
+      $this->id = $id;
+
+      return $this;
     }
 
     public function getPosition(): ?int
@@ -77,12 +100,12 @@ class HorseInRace
       return $this;
     }
 
-    public function getCompletedTime(): ?\DateTimeInterface
+    public function getCompletedTime(): ?int
     {
         return $this->completedTime;
     }
 
-    public function setCompletedTime(?\DateTimeInterface $completedTime): self
+    public function setCompletedTime(?int $completedTime): self
     {
         $this->completedTime = $completedTime;
 
@@ -111,5 +134,29 @@ class HorseInRace
         $this->horse = $horse;
 
         return $this;
+    }
+
+    public function getHorseId(): ?int
+    {
+      return $this->horseId;
+    }
+
+    public function setHorseId(?int $horseId): self
+    {
+      $this->horseId = $horseId;
+
+      return $this;
+    }
+
+    public function getRaceId(): ?int
+    {
+      return $this->raceId;
+    }
+
+    public function setRaceId(?int $raceId): self
+    {
+      $this->raceId = $raceId;
+
+      return $this;
     }
 }
