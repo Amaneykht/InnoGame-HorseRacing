@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\HorseInRace;
 use App\Entity\Race;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -41,10 +42,17 @@ class HorseInRaceRepository extends ServiceEntityRepository
     {
       return $this->createQueryBuilder('h')
         ->orderBy('h.completedTime', 'ASC')
+        ->innerJoin('h.race', 'r')
+        ->andWhere('r.status = :val')
         ->setParameter('val', Race::COMPLETED_STATUS)
-        ->andWhere('h.status = :val')
         ->setMaxResults(1)
         ->getQuery()
         ->getResult();
+    }
+
+    public function createTopThreeCriteria(): Criteria {
+      return Criteria::create()
+        ->orderBy(['position' => 'ASC'])
+        ->setMaxResults(3);
     }
 }

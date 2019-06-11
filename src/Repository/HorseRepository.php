@@ -21,6 +21,7 @@ class HorseRepository extends ServiceEntityRepository
     }
 
     public function findAvailableHorses() {
+      // Todo: change to be horses that are not in another race now, and they weren't in a race in the last two days
       return $this->findAll();
     }
 }

@@ -7,6 +7,9 @@
         <button class="btn btn-primary new-race" >
             New Race
         </button>
+        <button class="btn btn-primary progress-race" >
+            progress
+        </button>
     </div>
     {% for race in currentRaces %}
         <div class="race col-xs-6">
@@ -15,9 +18,7 @@
                     Race {{ race.getId() }}
                 </h2>
 
-                <button class="btn btn-primary progress-race" data="{{ race.getId() }}" >
-                    progress
-                </button>
+
             </div>
 
             <div class="col-xs-12">
@@ -123,41 +124,39 @@
       $( document ).ready(function() {
         setTimeout(function () {
           window.location.reload();
-        }, 3000);
+        }, 10000);
 
         $(document).on('click', '.new-race', function (e) {
-          $this = $(this);
           $.ajax({
             type: 'GET',
             url: '/race-simulation/add',
             dataType: 'JSON',
             data: {},
             success: function(data) {
-              console.log(data);
-              //refresh article.count here
+              if (data['errorMessage'] !== "") {
+                alert(data['errorMessage']);
+              }
+              else {
+                window.location.reload();
+              }
             },
             error: function(data) {
               console.log(data);
-              //refresh article.count here
             }
           });
         });
 
         $(document).on('click', '.progress-race', function (e) {
-          $this = $(this);
-          var id = $this.attr("data");
           $.ajax({
             type: 'GET',
-            url: '/race-simulation/progress?id=' + id,
+            url: '/race-simulation/progress',
             dataType: 'JSON',
             data: {},
             success: function(data) {
-              console.log(data);
-              //refresh article.count here
+              window.location.reload();
             },
             error: function(data) {
               console.log(data);
-              //refresh article.count here
             }
           });
         });

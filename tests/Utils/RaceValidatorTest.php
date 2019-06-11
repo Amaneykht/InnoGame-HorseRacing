@@ -15,14 +15,15 @@ class ValidatorTest extends TestCase
     private $objectManager;
     private $raceValidator;
 
-    public function __construct()
+    public function setUp()
     {
       // mock the repositories
       $this->raceRepository = $this->createMock(RaceRepository::class);
-      $this->raceValidator = $this->createMock(RaceValidator::class);
 
       // mock the EntityManager to return the mock of the repository
       $this->objectManager = $this->createMock(ObjectManager::class);
+
+      $this->raceValidator = new RaceValidator($this->raceRepository);
     }
 
     public function testValidateNumberOfInProgressRacesThreeOrMore()
@@ -46,6 +47,10 @@ class ValidatorTest extends TestCase
               ->setCreatedDateTime(new \DateTime('2019-06-10 21:00:00'))
             ,
           ]);
+
+        $this->objectManager->expects($this->any())
+          ->method('getRepository')
+          ->willReturn($this->raceRepository);
 
         $this->expectException('InvalidArgumentException');
         $this->expectExceptionMessage('Sorry you reach the maximum number of running races');

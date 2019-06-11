@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the Symfony package.
- *
- * (c) Fabien Potencier <fabien@symfony.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace App\Controller;
 
 use App\Entity\Race;
@@ -33,7 +24,6 @@ class RaceSimulationController extends AbstractController
     const NUMBER_OF_SECONDS = 10;
     /**
      * @Route("/", methods={"GET"}, name="race_simulation_index")
-     *
      */
     public function index(Request $request, RaceRepository $races, HorseInRaceRepository $horse): Response
     {
@@ -54,18 +44,26 @@ class RaceSimulationController extends AbstractController
     public function raceAdd(Request $request, HorseInRaceRepository $horse, RaceSimulationService $raceSimulationService): Response
     {
         $horsesInRace = [];
+        $errorMessage = "";
 
         if ($request->isXmlHttpRequest()) {
-          $horsesInRace = ['1'];
-          $race = $raceSimulationService->addNewRaceAndGenerateHorses();
+          try {
+            $race = $raceSimulationService->addNewRaceAndGenerateHorses();
 
-          if ($race !== false)
-          {
-            $horsesInRace = $horse->getHorsesInfoByRace($race);
+            if ($race !== false)
+            {
+              $horsesInRace = $horse->getHorsesInfoByRace($race);
+            }
+          }
+          catch(\Exception $e) {
+            $errorMessage = $e->getMessage();
           }
         }
 
-        return $this->json($horsesInRace);
+        return $this->json([
+          'data' => $horsesInRace,
+          'errorMessage'=> $errorMessage
+        ]);
     }
 
     /**
@@ -75,10 +73,9 @@ class RaceSimulationController extends AbstractController
     {
       $horsesInRace = [];
 
-      if ($request->isXmlHttpRequest()) {
-        $raceId = $request->query->get('id', '');
-
-        $horsesInRace = $raceSimulationService->updateHorseInfoPerRaceByTime($raceId, self::NUMBER_OF_SECONDS);
+      if ($request->isXmlHttpRequest())
+      {
+        $horsesInRace = $raceSimulationService->updateHorseInfoPerRaceByTime( self::NUMBER_OF_SECONDS);
       }
 
       $jsonObject = $serializer->serialize($horsesInRace, 'json', [

@@ -38,6 +38,13 @@ class Horse
         return $this->id;
     }
 
+    public function setId(?int $id): self
+    {
+      $this->id = $id;
+
+      return $this;
+    }
+
     public function getSpeed(): ?float
     {
         return $this->speed;
